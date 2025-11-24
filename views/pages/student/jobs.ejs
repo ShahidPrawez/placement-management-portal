@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs & Internships - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/student/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="/student/jobs" class="active"><i class="fas fa-briefcase"></i> Jobs & Internships</a></li>
+                <li><a href="/student/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                <li><a href="/student/resume"><i class="fas fa-file-pdf"></i> Resume & Documents</a></li>
+                <li><a href="/student/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Jobs & Internships</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= (user?.name || 'U').charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.name || 'Student' %></div>
+                        <div class="user-details">
+                            <%= user?.branch || 'Branch Not Set' %><% if(user?.year) { %> • Year <%= user?.year %><% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jobs Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-search"></i> Available Opportunities</h3>
+                    <div class="filters">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search jobs...">
+                        <select class="form-control" id="typeFilter">
+                            <option value="">All Types</option>
+                            <option value="Full Time">Full Time</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="jobs-grid">
+                        <% (jobs || []).forEach(job => { %>
+                            <div class="job-card" data-type="<%= job.type %>">
+                                <div class="job-header">
+                                    <h4><%= job.title || 'Untitled Position' %></h4>
+                                    <span class="badge bg-<%= job.type === 'Internship' ? 'info' : 'success' %>">
+                                        <%= job.type || 'Full Time' %>
+                                    </span>
+                                </div>
+                                <div class="company-info">
+                                    <i class="fas fa-building"></i> <%= job.companyName || 'Company Name Not Available' %>
+                                </div>
+                                <div class="job-details">
+                                    <div><i class="fas fa-map-marker-alt"></i> <%= job.location || 'Location Not Specified' %></div>
+                                    <div><i class="fas fa-rupee-sign"></i> <%= job.salary || 'Salary Not Disclosed' %></div>
+                                </div>
+                                <div class="job-description">
+                                    <%= job.description?.substring(0, 150) || 'No description available' %>...
+                                </div>
+                                <div class="deadline">
+                                    Last Date: <%= job.deadline ? new Date(job.deadline).toLocaleDateString() : 'Deadline Not Set' %>
+                                </div>
+                                <div class="job-actions">
+                                    <a href="/student/jobs/<%= job._id || '#' %>" class="btn btn-primary">View Details</a>
+                                    <button class="btn btn-success apply-job-btn" data-job-id="<%= job._id ? job._id.toString() : '' %>">
+                                        Apply Now
+                                    </button>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Job search and filtering functionality
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const jobCards = document.querySelectorAll('.job-card');
+
+        function filterJobs() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const typeValue = typeFilter.value;
+
+            jobCards.forEach(card => {
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const company = card.querySelector('.company-info').textContent.toLowerCase();
+                const type = card.dataset.type;
+                
+                const matchesSearch = title.includes(searchTerm) || company.includes(searchTerm);
+                const matchesType = !typeValue || type === typeValue;
+
+                card.style.display = matchesSearch && matchesType ? 'block' : 'none';
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterJobs);
+        }
+        if (typeFilter) {
+            typeFilter.addEventListener('change', filterJobs);
+        }
+
+        // Handle apply job buttons
+        document.querySelectorAll('.apply-job-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-job-id');
+                if (jobId) {
+                    applyForJob(jobId);
+                }
+            });
+        });
+
+        function applyForJob(jobId) {
+            if (confirm('Are you sure you want to apply for this position?')) {
+                fetch(`/student/jobs/${jobId}/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Application submitted successfully!');
+                        window.location.reload();
+                    } else {
+                        response.json().then(data => {
+                            alert(data.error || 'Failed to submit application. Please try again.');
+                        }).catch(() => {
+                            alert('Failed to submit application. Please try again.');
+                        });
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting your application.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

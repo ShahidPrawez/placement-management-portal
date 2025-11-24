@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applications - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-building"></i> Company Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/company/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/company/profile"><i class="fas fa-building"></i> Company Profile</a></li>
+                <li><a href="/company/jobs/post"><i class="fas fa-plus-circle"></i> Post New Job</a></li>
+                <li><a href="/company/jobs"><i class="fas fa-briefcase"></i> Posted Jobs</a></li>
+                <li><a href="/company/applications" class="active"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li><a href="/company/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Job Applications</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= (user?.companyName || 'C').charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.companyName || user?.name || 'Company' %></div>
+                        <div class="user-role">Company</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-alt"></i> All Applications</h3>
+                </div>
+                <div class="section-body">
+                    <% if (applications && applications.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Job Title</th>
+                                        <th>Applied On</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% applications.forEach(app => { %>
+                                    <tr>
+                                        <td><%= app.studentId.name %></td>
+                                        <td><%= app.jobId.title %></td>
+                                        <td><%= new Date(app.appliedDate).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-<%= 
+                                                app.status === 'pending' ? 'warning' : 
+                                                (app.status === 'shortlisted' ? 'success' : 
+                                                (app.status === 'rejected' ? 'danger' : 
+                                                (app.status === 'hired' ? 'primary' : 'info'))) %>">
+                                                <%= app.status.charAt(0).toUpperCase() + app.status.slice(1) %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/company/jobs/<%= app.jobId._id %>/applications" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No applications received yet.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

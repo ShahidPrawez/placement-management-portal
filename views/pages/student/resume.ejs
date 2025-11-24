@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume & Documents - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/student/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="/student/jobs"><i class="fas fa-briefcase"></i> Jobs & Internships</a></li>
+                <li><a href="/student/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                <li><a href="/student/resume" class="active"><i class="fas fa-file-pdf"></i> Resume & Documents</a></li>
+                <li><a href="/student/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Resume & Documents</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= (user?.name || 'U').charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.name || 'Student' %></div>
+                        <div class="user-details">
+                            <%= user?.branch || 'Branch Not Set' %><% if(user?.year) { %> • Year <%= user?.year %><% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-pdf"></i> My Resume</h3>
+                    <a href="/student/profile" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Update Resume
+                    </a>
+                </div>
+                <div class="section-body">
+                    <% if (user?.resume) { %>
+                        <div class="resume-card">
+                            <div class="resume-info">
+                                <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                <div>
+                                    <h5>Current Resume</h5>
+                                    <p class="text-muted">Uploaded resume file</p>
+                                </div>
+                            </div>
+                            <div class="resume-actions">
+                                <a href="<%= user.resume %>" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> View Resume
+                                </a>
+                                <a href="<%= user.resume %>" download class="btn btn-secondary">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> No resume uploaded yet. 
+                            <a href="/student/profile">Upload your resume</a> to apply for jobs.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-info-circle"></i> Resume Guidelines</h3>
+                </div>
+                <div class="section-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i> 
+                            Resume should be in PDF format only
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i> 
+                            Keep your resume updated with latest skills and achievements
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i> 
+                            Make sure all information is accurate and up-to-date
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i> 
+                            File size should not exceed 5MB
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

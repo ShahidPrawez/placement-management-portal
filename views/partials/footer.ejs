@@ -1,0 +1,18 @@
+	<footer class="site-footer">
+		<div class="container">
+			<div>&copy; <%= new Date().getFullYear() %> Placement Management</div>
+			<div>Built with ❤️ • <a href="#" style="color:#fff;text-decoration:underline">Contact</a></div>
+		</div>
+	</footer>
+  <script>
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    mobileNavToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      const isExpanded = navLinks.classList.contains('active');
+      mobileNavToggle.setAttribute('aria-expanded', isExpanded);
+    });
+  </script>
+</body>
+</html>

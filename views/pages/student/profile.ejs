@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/student/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student/profile" class="active"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="/student/jobs"><i class="fas fa-briefcase"></i> Jobs & Internships</a></li>
+                <li><a href="/student/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                <li><a href="/student/resume"><i class="fas fa-file-pdf"></i> Resume & Documents</a></li>
+                <li><a href="/student/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>My Profile</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <% if (user && user.profilePicture) { %>
+                            <img src="<%= user.profilePicture %>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                        <% } else { %>
+                            <%= (user?.name || 'U').charAt(0).toUpperCase() %>
+                        <% } %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.name || 'Student' %></div>
+                        <div class="user-details">
+                            <%= user?.branch || 'Branch Not Set' %><% if(user?.year) { %> • Year <%= user?.year %><% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Form -->
+            <div class="section" id="profileFormSection">
+                <div class="section-header">
+                    <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+                </div>
+                <div class="section-body">
+                    <!-- Profile Picture Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-image"></i> Profile Picture</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="Profile Picture" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
+                            <div>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updatePictureModal">
+                                    <i class="fas fa-upload"></i> Update Picture
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <% if (locals.error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    <% if (locals.success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <form action="/student/profile" method="POST" class="profile-form">
+                        <!-- Personal Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-user"></i> Personal Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" name="name" value="<%= user?.name || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" value="<%= user?.email || '' %>" disabled>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" name="phone" value="<%= user?.phone || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" name="dob" value="<%= user?.dob ? new Date(user.dob).toISOString().split('T')[0] : '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-graduation-cap"></i> Academic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Branch/Department</label>
+                                        <input type="text" class="form-control" name="branch" value="<%= user?.branch || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Year</label>
+                                        <select class="form-control" name="year" required>
+                                            <option value="">Select Year</option>
+                                            <option value="1" <%= user?.year === 1 ? 'selected' : '' %>>1st Year</option>
+                                            <option value="2" <%= user?.year === 2 ? 'selected' : '' %>>2nd Year</option>
+                                            <option value="3" <%= user?.year === 3 ? 'selected' : '' %>>3rd Year</option>
+                                            <option value="4" <%= user?.year === 4 ? 'selected' : '' %>>4th Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Roll Number</label>
+                                        <input type="text" class="form-control" name="rollNumber" value="<%= user?.rollNumber || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">CGPA</label>
+                                        <input type="number" step="0.01" min="0" max="10" class="form-control" name="cgpa" value="<%= user?.cgpa || '' %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-tools"></i> Skills & Expertise</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Skills (comma separated)</label>
+                                    <textarea class="form-control" name="skills" rows="3" placeholder="e.g., Java, Python, Web Development"><%= user?.skills?.join(', ') || '' %></textarea>
+                                    <div class="form-text">Enter your skills separated by commas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resume Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-pdf"></i> Resume</h3>
+                </div>
+                <div class="section-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <% if (user?.resume) { %>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">Current Resume</h5>
+                                        <p class="text-muted mb-0">Last updated: <%= new Date(user.resumeUpdatedAt || user.updatedAt).toLocaleDateString() %></p>
+                                    </div>
+                                    <div>
+                                        <a href="<%= user.resume %>" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateResumeModal">
+                                            <i class="fas fa-upload"></i> Update
+                                        </button>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-file-upload fa-3x mb-3"></i>
+                                    <h5>No Resume Uploaded</h5>
+                                    <p class="text-muted">Upload your resume to apply for jobs</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateResumeModal">
+                                        <i class="fas fa-upload"></i> Upload Resume
+                                    </button>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Resume Modal -->
+    <div class="modal fade" id="updateResumeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-file-upload"></i> Update Resume</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resumeForm" action="/student/profile/resume" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Select Resume (PDF only)</label>
+                            <input type="file" class="form-control" name="resume" accept=".pdf" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="resumeForm" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Picture Modal -->
+    <div class="modal fade" id="updatePictureModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-image"></i> Update Profile Picture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pictureForm" action="/student/profile/picture" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Select Image (JPG, PNG, GIF)</label>
+                            <input type="file" class="form-control" name="profilePicture" accept="image/png, image/jpeg, image/gif" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="pictureForm" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        /* Success Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 350px;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .toast-notification.hide {
+            animation: slideOutRight 0.5s ease-out forwards;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #4cc9f0, #00d4ff);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(76, 201, 240, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .toast-success i {
+            font-size: 1.5rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        @media (max-width: 600px) {
+            .toast-notification {
+                min-width: 280px;
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+
+    <script>
+        // Success notification function
+        function showSuccessNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // Handle profile form submission
+        const profileForm = document.querySelector('.profile-form');
+        if (profileForm) {
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(profileForm);
+                    const response = await fetch('/student/profile', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Show success notification
+                        showSuccessNotification('✓ Profile saved successfully!');
+                        
+                        // Hide the form section after 1 second
+                        setTimeout(() => {
+                            const formSection = document.getElementById('profileFormSection');
+                            if (formSection) {
+                                formSection.style.animation = 'fadeOutUp 0.5s ease-out';
+                                setTimeout(() => {
+                                    formSection.style.display = 'none';
+                                }, 500);
+                            }
+                        }, 1000);
+                    } else {
+                        showErrorNotification('Failed to save profile. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showErrorNotification('An error occurred. Please try again.');
+                }
+            });
+        }
+
+        // Error notification function
+        function showErrorNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-success" style="background: linear-gradient(135deg, #f72585, #ff006e); box-shadow: 0 8px 24px rgba(247, 37, 133, 0.3);">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // Handle resume upload form
+        const resumeForm = document.querySelector('#resumeForm');
+        if (resumeForm) {
+            document.querySelector('button[form="resumeForm"]').addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(resumeForm);
+                    const response = await fetch('/student/profile/resume', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        showSuccessNotification('✓ Resume uploaded successfully!');
+                        
+                        // Close modal after success
+                        const modal = bootstrap.Modal.getInstance(document.querySelector('#updateResumeModal'));
+                        setTimeout(() => {
+                            modal.hide();
+                            resumeForm.reset();
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showErrorNotification('Failed to upload resume. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showErrorNotification('An error occurred. Please try again.');
+                }
+            });
+        }
+
+        // Handle picture upload form
+        const pictureForm = document.querySelector('#pictureForm');
+        if (pictureForm) {
+            document.querySelector('button[form="pictureForm"]').addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(pictureForm);
+                    const response = await fetch('/student/profile/picture', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        showSuccessNotification('✓ Profile picture updated successfully!');
+                        
+                        // Close modal after success
+                        const modal = bootstrap.Modal.getInstance(document.querySelector('#updatePictureModal'));
+                        setTimeout(() => {
+                            modal.hide();
+                            pictureForm.reset();
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showErrorNotification('Failed to upload picture. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showErrorNotification('An error occurred. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

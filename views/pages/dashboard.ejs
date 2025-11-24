@@ -1,0 +1,225 @@
+
+<link rel="stylesheet" href="/css/dashboard.css">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-graduation-cap"></i> Student Dashboard</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/students/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="/students/jobs"><i class="fas fa-briefcase"></i> Jobs & Internships</a></li>
+                <li><a href="/students/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                <li><a href="/students/resume"><i class="fas fa-file-pdf"></i> Resume & Documents</a></li>
+                <li><a href="/students/interviews"><i class="fas fa-calendar-alt"></i> Interviews</a></li>
+                <li><a href="/students/notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Welcome back, <%= user.name %>!</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= user.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user.name %></div>
+                        <div class="user-branch"><%= user.branch %> • <%= user.year %> Year</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card applied">
+                    <div class="stat-number"><%= stats.applied || 0 %></div>
+                    <div class="stat-label">Applications Sent</div>
+                </div>
+                <div class="stat-card shortlisted">
+                    <div class="stat-number"><%= stats.shortlisted || 0 %></div>
+                    <div class="stat-label">Shortlisted</div>
+                </div>
+                <div class="stat-card rejected">
+                    <div class="stat-number"><%= stats.rejected || 0 %></div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+                <div class="stat-card placed">
+                    <div class="stat-number"><%= stats.placed || 0 %></div>
+                    <div class="stat-label">Placements</div>
+                </div>
+            </div>
+
+            <!-- Recent Applications -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-alt"></i> Recent Applications</h3>
+                    <a href="/students/applications" class="btn btn-primary">View All</a>
+                </div>
+                <div class="section-body">
+                    <% if (applications && applications.length > 0) { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Applied Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% applications.forEach(application => { %>
+                                <tr>
+                                    <td><%= application.company %></td>
+                                    <td><%= application.position %></td>
+                                    <td><%= new Date(application.appliedDate).toLocaleDateString() %></td>
+                                    <td>
+                                        <span class="badge badge-<%= application.status.toLowerCase() %>">
+                                            <%= application.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">View Details</button>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p>No applications yet. <a href="/students/jobs">Browse jobs</a> to get started!</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Recommended Jobs -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-briefcase"></i> Recommended For You</h3>
+                    <a href="/students/jobs" class="btn btn-primary">Browse All Jobs</a>
+                </div>
+                <div class="section-body">
+                    <div class="jobs-grid">
+                        <% jobs.forEach(job => { %>
+                        <div class="job-card">
+                            <div class="job-header">
+                                <div>
+                                    <div class="job-title"><%= job.title %></div>
+                                    <div class="job-company"><%= job.company %></div>
+                                </div>
+                                <span class="job-type"><%= job.type %></span>
+                            </div>
+                            
+                            <div class="job-details">
+                                <div class="job-detail">
+                                    <i class="fas fa-rupee-sign"></i>
+                                    <span><%= job.salary %></span>
+                                </div>
+                                <div class="job-detail">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><%= job.location %></span>
+                                </div>
+                                <div class="job-detail">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span><%= job.eligibility %></span>
+                                </div>
+                            </div>
+
+                            <div class="skills">
+                                <% job.skillsRequired.forEach(skill => { %>
+                                <span class="skill-tag"><%= skill %></span>
+                                <% }); %>
+                            </div>
+
+                            <div class="job-actions">
+                                <button class="btn btn-primary" onclick="applyJob('<%= job._id %>')">
+                                    <i class="fas fa-paper-plane"></i> Apply Now
+                                </button>
+                                <button class="btn" onclick="viewJob('<%= job._id %>')">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Interviews -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Upcoming Interviews</h3>
+                </div>
+                <div class="section-body">
+                    <% if (interviews && interviews.length > 0) { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Date & Time</th>
+                                    <th>Mode</th>
+                                    <th>Link/Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% interviews.forEach(interview => { %>
+                                <tr>
+                                    <td><%= interview.company %></td>
+                                    <td><%= interview.position %></td>
+                                    <td><%= new Date(interview.date).toLocaleString() %></td>
+                                    <td><%= interview.mode %></td>
+                                    <td>
+                                        <% if (interview.mode === 'Online') { %>
+                                            <a href="<%= interview.link %>" class="btn btn-primary btn-sm">Join Meeting</a>
+                                        <% } else { %>
+                                            <%= interview.address %>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p>No upcoming interviews scheduled.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function applyJob(jobId) {
+            if (confirm('Are you sure you want to apply for this position?')) {
+                fetch(`/students/jobs/${jobId}/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Application submitted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error applying for job');
+                });
+            }
+        }
+
+        function viewJob(jobId) {
+            window.location.href = `/students/jobs/${jobId}`;
+        }
+    </script>
+
+<%- include('../partials/footer') %>

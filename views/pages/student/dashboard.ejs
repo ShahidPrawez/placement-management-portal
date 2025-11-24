@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/student/dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student/profile"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="/student/jobs"><i class="fas fa-briefcase"></i> Jobs & Internships</a></li>
+                <li><a href="/student/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                <li><a href="/student/resume"><i class="fas fa-file-pdf"></i> Resume & Documents</a></li>
+                <li><a href="/student/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Welcome back, <%= user?.name || 'Student' %>!</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <% if (user && user.profilePicture) { %>
+                            <img src="<%= user.profilePicture %>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                        <% } else { %>
+                            <%= (user?.name || 'U').charAt(0).toUpperCase() %>
+                        <% } %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.name || 'User' %></div>
+                        <div class="user-details">
+                            <%= user?.branch || 'Branch Not Set' %><% if(user?.year) { %> • Year <%= user?.year %><% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.totalApplications || 0 %></div>
+                    <div class="stat-label">Applications Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.shortlisted || 0 %></div>
+                    <div class="stat-label">Shortlisted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.pendingInterviews || 0 %></div>
+                    <div class="stat-label">Pending Interviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><%= stats.offers || 0 %></div>
+                    <div class="stat-label">Offers Received</div>
+                </div>
+            </div>
+
+            <!-- Profile Completion -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-tasks"></i> Profile Completion</h3>
+                    <a href="/student/profile/edit" class="btn btn-primary">Update Profile</a>
+                </div>
+                <div class="section-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" data-width="<%= profileCompletion || 0 %>" style="width: 0%">
+                            <%= (profileCompletion || 0) + '%' %>
+                        </div>
+                    </div>
+                    <div class="profile-checklist">
+                        <div class="checklist-item <%= user?.resume ? 'completed' : '' %>">
+                            <i class="fas <%= user?.resume ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' %>"></i>
+                            Upload Resume
+                        </div>
+                        <div class="checklist-item <%= user?.skills?.length ? 'completed' : '' %>">
+                            <i class="fas <%= user?.skills?.length ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' %>"></i>
+                            Add Skills
+                        </div>
+                        <div class="checklist-item <%= user?.phone ? 'completed' : '' %>">
+                            <i class="fas <%= user?.phone ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' %>"></i>
+                            Add Contact Information
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latest Job Opportunities -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-briefcase"></i> Latest Opportunities</h3>
+                    <a href="/student/jobs" class="btn btn-primary">View All Jobs</a>
+                </div>
+                <div class="section-body">
+                    <div class="jobs-grid">
+                        <% if (recentJobs && recentJobs.length > 0) { %>
+                            <% recentJobs.forEach(job => { %>
+                            <div class="job-card">
+                                <div class="job-header">
+                                    <h4><%= job.title || 'Untitled Position' %></h4>
+                                    <span class="badge bg-<%= job.type === 'Internship' ? 'info' : 'success' %>">
+                                        <%= job.type || 'Full Time' %>
+                                    </span>
+                                </div>
+                                <div class="company-info">
+                                    <i class="fas fa-building"></i> <%= job.companyName || 'Company Name Not Available' %>
+                                </div>
+                                <div class="job-details">
+                                    <div><i class="fas fa-map-marker-alt"></i> <%= job.location || 'Location Not Specified' %></div>
+                                    <div><i class="fas fa-rupee-sign"></i> <%= job.salary || 'Salary Not Disclosed' %></div>
+                                </div>
+                                <div class="deadline">
+                                    Last Date: <%= job.deadline ? new Date(job.deadline).toLocaleDateString() : 'Deadline Not Set' %>
+                                </div>
+                                <div class="job-actions">
+                                    <a href="/student/jobs/<%= job._id || '#' %>" class="btn btn-primary">View Details</a>
+                                    <button class="btn btn-success apply-job-btn" data-job-id="<%= job._id ? job._id.toString() : '' %>">
+                                        Apply Now
+                                    </button>
+                                </div>
+                            </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <p class="text-muted">No jobs available at the moment.</p>
+                                <a href="/student/jobs" class="btn btn-primary">Browse All Jobs</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Applications -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-alt"></i> Recent Applications</h3>
+                    <a href="/student/applications" class="btn btn-primary">View All Applications</a>
+                </div>
+                <div class="section-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Applied On</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% (recentApplications || []).forEach(app => { %>
+                                <tr>
+                                    <td><%= app.job?.companyName || 'Company Not Available' %></td>
+                                    <td><%= app.job?.title || 'Position Not Available' %></td>
+                                    <td><%= app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : 'Date Not Available' %></td>
+                                    <td>
+                                        <span class="badge bg-<%= 
+                                            (app.status === 'Pending' || app.status === 'pending') ? 'warning' : 
+                                            ((app.status === 'Shortlisted' || app.status === 'shortlisted') ? 'success' : 
+                                            ((app.status === 'Rejected' || app.status === 'rejected') ? 'danger' : 
+                                            ((app.status === 'Hired' || app.status === 'hired') ? 'success' : 'info'))) %>">
+                                            <%= app.status || 'Pending' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/student/applications/<%= app._id || '#' %>" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Interviews -->
+            <div class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-check"></i> Upcoming Interviews</h3>
+                    <a href="/student/interviews" class="btn btn-primary">View All Interviews</a>
+                </div>
+                <div class="section-body">
+                    <% if (upcomingInterviews && upcomingInterviews.length > 0) { %>
+                        <div class="interview-timeline">
+                            <% upcomingInterviews.forEach(interview => { %>
+                                <div class="interview-card">
+                                    <div class="interview-date">
+                                        <%= interview.scheduledAt ? new Date(interview.scheduledAt).toLocaleDateString() : 'Date Not Set' %>
+                                        <%= interview.scheduledAt ? new Date(interview.scheduledAt).toLocaleTimeString() : '' %>
+                                    </div>
+                                    <div class="interview-details">
+                                        <h5><%= interview.job?.companyName || 'Company Name Not Available' %></h5>
+                                        <p><%= interview.job?.title || 'Position Not Specified' %></p>
+                                        <div class="interview-type">
+                                            <i class="fas <%= interview.type === 'online' ? 'fa-video' : 'fa-building' %>"></i>
+                                            <%= interview.type ? interview.type.charAt(0).toUpperCase() + interview.type.slice(1) : 'In Person' %> Interview
+                                        </div>
+                                    </div>
+                                    <div class="interview-actions">
+                                        <% if (interview.meetingLink) { %>
+                                            <a href="<%= interview.meetingLink %>" target="_blank" class="btn btn-primary">
+                                                Join Meeting
+                                            </a>
+                                        <% } %>
+                                        <a href="/student/interviews/<%= interview._id || '#' %>" class="btn btn-info">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p>No upcoming interviews scheduled.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set progress bar width from data attribute
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.querySelector('.progress-bar[data-width]');
+            if (progressBar) {
+                const width = progressBar.getAttribute('data-width');
+                progressBar.style.width = width + '%';
+            }
+
+            // Handle apply job buttons
+            document.querySelectorAll('.apply-job-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const jobId = this.getAttribute('data-job-id');
+                    if (jobId) {
+                        applyForJob(jobId);
+                    }
+                });
+            });
+        });
+
+        function applyForJob(jobId) {
+            if (!jobId) {
+                alert('Invalid job ID');
+                return;
+            }
+
+            if (confirm('Are you sure you want to apply for this position?')) {
+                fetch(`/student/jobs/${jobId}/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Application submitted successfully!');
+                        window.location.reload();
+                    } else {
+                        return response.json().then(data => {
+                            alert(data.error || 'Failed to submit application. Please try again.');
+                        }).catch(() => {
+                            alert('Failed to submit application. Please try again.');
+                        });
+                    }
+                }).catch(err => {
+                    console.error('Error:', err);
+                    alert('An error occurred while submitting your application.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Placement Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    nav { padding: 8px; background: #f2f2f2; }
+    nav a { margin-right: 12px; }
+    nav form { display: inline; }
+  </style>
+</head>
+<body>
+<nav class="site-nav">
+  <div class="container">
+    <a class="brand" href="/">Placements</a>
+    <div class="nav-links-container">
+      <button class="mobile-nav-toggle" aria-controls="primary-navigation" aria-expanded="false">
+        <span class="sr-only">Menu</span>
+      </button>
+      <div class="nav-links">
+        <% if (user) { %>
+          <span style="margin-right:12px;color:var(--muted)">Hello, <%= user.name %></span>
+          <a href="/dashboard">Dashboard</a>
+          <form method="POST" action="/auth/logout" style="display:inline">
+            <button class="btn btn-ghost" type="submit">Logout</button>
+          </form>
+        <% } else { %>
+          <a href="/">Home</a>
+          <a href="/auth/login">Login</a>
+          <a class="cta" href="/auth/register">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>

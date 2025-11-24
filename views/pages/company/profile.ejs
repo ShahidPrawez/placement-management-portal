@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile - Placement Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-building"></i> Company Portal</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/company/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/company/profile" class="active"><i class="fas fa-building"></i> Company Profile</a></li>
+                <li><a href="/company/jobs"><i class="fas fa-briefcase"></i> Manage Jobs</a></li>
+                <li><a href="/company/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li><a href="/company/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Company Profile</h1>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <% if (user && user.profilePicture) { %>
+                            <img src="<%= user.profilePicture %>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                        <% } else { %>
+                            <%= (user?.companyName || 'C').charAt(0).toUpperCase() %>
+                        <% } %>
+                    </div>
+                    <div>
+                        <div class="user-name"><%= user?.companyName || user?.name || 'Company' %></div>
+                        <div class="user-role">Company</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Profile Section -->
+            <div class="section" id="profileFormSection">
+                <div class="section-header">
+                    <h3><i class="fas fa-edit"></i> Edit Company Profile</h3>
+                </div>
+                <div class="section-body">
+                    <% if (locals.error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    <% if (locals.success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+
+                    <form action="/company/profile" method="POST" enctype="multipart/form-data" class="profile-form">
+                        <!-- Basic Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Company Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Company Name</label>
+                                        <input type="text" class="form-control" name="companyName" value="<%= user?.companyName || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Industry</label>
+                                        <input type="text" class="form-control" name="industry" value="<%= user?.industry || '' %>" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Website</label>
+                                        <input type="url" class="form-control" name="website" value="<%= user?.website || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Founded Year</label>
+                                        <input type="number" class="form-control" name="foundedYear" value="<%= user?.foundedYear || '' %>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Description</label>
+                                    <textarea class="form-control" name="description" rows="4" required><%= user?.description || '' %></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Contact Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Contact Person Name</label>
+                                        <input type="text" class="form-control" name="contactName" value="<%= user?.contactName || '' %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Designation</label>
+                                        <input type="text" class="form-control" name="contactDesignation" value="<%= user?.contactDesignation || '' %>" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" value="<%= user?.email || '' %>" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" name="phone" value="<%= user?.phone || '' %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Office Location</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control" name="address" rows="3" required><%= user?.address || '' %></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-control" name="city" value="<%= user?.city || '' %>" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">State</label>
+                                        <input type="text" class="form-control" name="state" value="<%= user?.state || '' %>" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">PIN Code</label>
+                                        <input type="text" class="form-control" name="pincode" value="<%= user?.pincode || '' %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Logo -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Company Logo</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <% if (user?.logo) { %>
+                                            <div class="current-logo mb-3">
+                                                <img src="<%= user.logo %>" alt="Company Logo" class="img-thumbnail" style="max-height: 100px;">
+                                            </div>
+                                        <% } %>
+                                        <div class="mb-3">
+                                            <label class="form-label">Upload New Logo</label>
+                                            <input type="file" class="form-control" name="logo" accept="image/*">
+                                            <div class="form-text">Recommended size: 200x200px. Max size: 2MB</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Media Links -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Social Media Links</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">LinkedIn</label>
+                                        <input type="url" class="form-control" name="linkedin" value="<%= user?.linkedin || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Twitter</label>
+                                        <input type="url" class="form-control" name="twitter" value="<%= user?.twitter || '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        /* Success Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 350px;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .toast-notification.hide {
+            animation: slideOutRight 0.5s ease-out forwards;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #4cc9f0, #00d4ff);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(76, 201, 240, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .toast-success i {
+            font-size: 1.5rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        @media (max-width: 600px) {
+            .toast-notification {
+                min-width: 280px;
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+
+    <script>
+        // Success notification function
+        function showSuccessNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // Error notification function
+        function showErrorNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-success" style="background: linear-gradient(135deg, #f72585, #ff006e); box-shadow: 0 8px 24px rgba(247, 37, 133, 0.3);">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // Handle company profile form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileForm = document.querySelector('.profile-form');
+
+            if (profileForm) {
+                profileForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    try {
+                        const formData = new FormData(profileForm);
+                        const response = await fetch('/company/profile', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            // Show success notification
+                            showSuccessNotification('✓ Profile saved successfully!');
+                            
+                            // Hide the form section after 1 second
+                            setTimeout(() => {
+                                const formSection = document.getElementById('profileFormSection');
+                                if (formSection) {
+                                    formSection.style.animation = 'fadeOutUp 0.5s ease-out';
+                                    setTimeout(() => {
+                                        formSection.style.display = 'none';
+                                    }, 500);
+                                }
+                            }, 1000);
+                        } else {
+                            showErrorNotification('Failed to save profile. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showErrorNotification('An error occurred. Please try again.');
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            const phone = document.querySelector('input[name="phone"]').value;
+            const pincode = document.querySelector('input[name="pincode"]').value;
+            const foundedYear = document.querySelector('input[name="foundedYear"]').value;
+
+            if (!/^\d{10}$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit phone number');
+            }
+
+            if (!/^\d{6}$/.test(pincode)) {
+                e.preventDefault();
+                alert('Please enter a valid 6-digit PIN code');
+            }
+
+            if (foundedYear && (foundedYear < 1800 || foundedYear > new Date().getFullYear())) {
+                e.preventDefault();
+                alert('Please enter a valid founded year');
+            }
+        });
+
+        // Preview uploaded image
+        const logoInput = document.querySelector('input[name="logo"]');
+        logoInput?.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const currentLogo = document.querySelector('.current-logo');
+                    if (currentLogo) {
+                        currentLogo.querySelector('img').src = e.target.result;
+                    } else {
+                        const newLogo = document.createElement('div');
+                        newLogo.className = 'current-logo mb-3';
+                        newLogo.innerHTML = `<img src="${e.target.result}" alt="Company Logo" class="img-thumbnail" style="max-height: 100px;">`;
+                        logoInput.parentElement.insertBefore(newLogo, logoInput);
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
